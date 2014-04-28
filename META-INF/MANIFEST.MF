@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: ttc2014_movie_database_case
+Bundle-SymbolicName: ttc2014_movie_database_case
+Bundle-Version: 1.0.0
+Require-Bundle: org.eclipse.imp.pdb.values,
+ rascal
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
