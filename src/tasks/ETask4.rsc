@@ -8,22 +8,10 @@ import List;
 import util::Math;
 
 list[tuple[set[Person], real, int]] top15cliquesAvgRating(MovieMM m, int n) =
-	top15cliques(computeAverageCliqueRatings(findCliques(m, n)),
-		real(Group g){ 
-			if (clique(rtg, _, _) := g) 
-				return rtg;
-			else 
-				return 0.0;
-		});
+	top15cliques(computeAverageCliqueRatings(findCliques(m, n)), Utils::getRating);
 	
 list[tuple[set[Person], real, int]] top15cliquesCommonMovies(MovieMM m, int n) =
-	top15cliques(computeAverageCliqueRatings(findCliques(m, n)), 
-		real(Group g){
-			if (clique(_, _, ms) := g)
-				return toReal(size(ms));
-			else 
-				return 0.0;
-		});
+	top15cliques(computeAverageCliqueRatings(findCliques(m, n)), Utils::getCommonMovies);
 	
 bool(Group,Group) less(real(Group) indicator) =
 	bool(c1:clique(_, s1, _), c2:clique(_, s2, _)){

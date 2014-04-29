@@ -7,21 +7,15 @@ import Map;
 
 MovieMM findCouples(m:mm(movies, persons, groups, pim)) =
 	mm(movies, persons, newGroups(m), pim);
-	
+
 set[Group] newGroups(model:mm(movies, persons, groups, pim)){
 	costars = toMap(pim);
-	map[tuple[int,int], set[int]] couples = ();
-	for (int movie <- costars){
-		costarsInMovie = costars[movie];
-		for (<x,y> <- costarsInMovie*costarsInMovie){
-			if (x < y)
-				if (<x,y> in couples)
-					couples[<x,y>] = couples[<x,y>] + movie;
-				else
-					couples[<x,y>] = {}; 
-		}
-	}
-	return {couple(0.0, p1, p2, getMovies(ms, model)) | <p1,p2> <- domain(couples),
-									  size(couples[<p1,p2>]) >= 3,
-									  ms := couples[<p1,p2>]};
+	couples = 
+		(() | it + (<x, y> : (<x, y> in it ? (it[<x, y>] + movie) : {movie})) | movie <- costars,
+															     				costarsInMovie := costars[movie],
+																 				<x, y> <- costarsInMovie * costarsInMovie,
+																 				x < y); 
+	return {couple(0.0, x, y, getMovies(ms, model)) | <x, y> <- domain(couples),
+									  				  size(couples[<x, y>]) >= 3,
+									  			      ms := couples[<x, y>]};
 }
