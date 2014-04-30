@@ -10,6 +10,8 @@ import tasks::Task1;
 import tasks::Task2;
 import tasks::Task3;
 import util::Benchmark;
+import List;
+import String;
 
 /*
 Task 2 (Finding couples). This benchmark should be executed using two different sets of input data:
@@ -54,7 +56,7 @@ please use the provided models listed in Table 2. The models are available on re
 */
 
 void smokeTest() {
-  l = |project://ttc2014-movie-database-case/input/imdb-0005000-49930.movies|;
+  l = |cwd:///input/imdb-0005000-49930.movies|;
   println("Loading <l.path>...");
   m = xml2imdb(parseXMLDOMTrim(readFile(l)));
   
@@ -73,13 +75,27 @@ void smokeTest() {
   println("Done.");
 }
 
-int main(str movieFile = "") {
-  l = |project://ttc2014-movie-database-case/<movieFile>|;
-  
-  
-  //for (i <- [3]) {
-    b = benchmarkCliqueFinding(l, 2);
+int main(list[str] args) {
+  if (args == []) {
+    println("Running smoke test.");
+    smokeTest();
+  }
+  else if (size(args) >= 2, args[0] == "benchmark", /([0-9]+[,]?)+/ := args[1]) {
+    println("Benchmark with inputs:\n- <intercalate("\n- ", args[2..])>");
+    println("(group sizes: <args[1]>)");
+    b = ();
+    
+    for (gs <- [ toInt(x) | x <- split(",", args[1]) ], i <- [2..size(args)]) {
+      l = |cwd:///<args[i]>|;
+      println("Benchmarking <l.path> with group size <gs>...");
+      b += benchmarkCliqueFinding(l, gs);
+    }
     iprintln(b);
-  //}
+  }
+  else {
+    println("Usage: java -Xmx2G -Xss32m -jar rascal-shell.jar benchmark 2,3,4 input/*.movies");
+    println("or: java -Xmx2G -Xss32m -jar rascal-shell.jar to run smoke test.");
+    return 1;
+  }
   return 0;
 }
