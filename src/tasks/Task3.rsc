@@ -8,7 +8,7 @@ import Map;
 import analysis::statistics::Descriptive;
 import util::Math;
 
-MovieMM computeAverageRatings(MovieMM m) = m[groups=gs]
+MovieMM addGroupRatings(MovieMM m) = m[groups=gs]
   when gs :=
 	{ g[avgRating = toReal(mean(ratings))] 
 	   | g <- m.groups, ratings := [ m.movies[x].rating | x <- g.movies ]};

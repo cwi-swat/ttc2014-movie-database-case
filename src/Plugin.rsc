@@ -5,6 +5,7 @@ import IO;
 import XML2MovieMM;
 import MovieMM;
 import tasks::ETask2;
+import tasks::Task1;
 import tasks::Task2;
 import util::Benchmark;
 
@@ -17,19 +18,29 @@ needed to complete the transformation (without loading and saving the model).
 */
 
 
-void benchmarkTask2a() {
+map[str, num] benchmarkTask2a() {
+  sizes = [1000, 2000, 3000, 4000, 5000, 10000, 50000, 100000, 200000];
+  bs = ();
+  for (i <- sizes, j <- [2..6]) {
+    println("SIZE = <i>, cliquesize = <j>");
+    m = createExample(i);
+    //iprintln(m);
+    bs += benchmarkCliqueFinding("synth<i>", m, j);
+  }
+  iprintln(bs);
+  return bs;
 }
 
 
 
 
 map[str,num] benchmarkCliqueFinding(loc f, int n) 
-  = benchmarkCliqueFinding(f, moviem(parseXMLDOMTrim(readFile(f))), n);
+  = benchmarkCliqueFinding(f.path, moviem(parseXMLDOMTrim(readFile(f))), n);
 
-map[str, num] benchmarkCliqueFinding(loc f, MovieMM m, int n) 
+map[str, num] benchmarkCliqueFinding(str key, MovieMM m, int n) 
   = n == 2 
-  ? benchmark(("<f> - <n> ": () { addCouples(m); }))
-  : benchmark(("<f> - <n> ": () { addCliques(m, n); }));
+  ? benchmark(("<key>(<n>)": () { addCouples(m); }))
+  : benchmark(("<key>(<n>)": () { addCliques(m, n); }));
 
 /*
 If you solved also the extension task 2 (finding cliques), please also generate benchmarks for 
@@ -42,9 +53,9 @@ please use the provided models listed in Table 2. The models are available on re
 
 int main(str movieFile = "") {
   l = |project://ttc2014-movie-database-case/<movieFile>|;
-  for (i <- [2..5]) {
-    b = benchmarkCliqueFinding(l, i);
+  //for (i <- [3]) {
+    b = benchmarkCliqueFinding(l, 2);
     iprintln(b);
-  }
+  //}
   return 0;
 }
