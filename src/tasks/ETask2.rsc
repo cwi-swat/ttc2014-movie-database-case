@@ -11,7 +11,7 @@ data Group = clique(real avgRating, set[Id] persons, set[Id] movies);
 IMDB addCliques(IMDB m, int n) = m[groups=makeCliques(m, n)];
 
 set[Group] makeCliques(IMDB m, int n) {
-    map[int movie, set[int] stars] costars = toMap(m.pim);
+    map[int movie, set[int] stars] costars = toMap(m.stars);
     map[set[int] clique, set[int] movies] cliques = ();
     
     set[int] EMPTY = {};

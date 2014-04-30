@@ -7,7 +7,7 @@ import Map;
 IMDB addCouples(IMDB m) = m[groups=makeCouples(m)];
 
 set[Group] makeCouples(IMDB m){
-	map[int movie, set[int] stars] costars = toMap(m.pim);
+	map[int movie, set[int] stars] costars = toMap(m.stars);
 	map[tuple[int star1, int star2] couple, set[int] movies] couples = ();
 	
 	set[int] EMPTY = {}; // workaround bug in rascal interpreter.

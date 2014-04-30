@@ -3,7 +3,7 @@ module IMDB
 data IMDB = imdb(map[Id, Movie] movies,
                  map[Id, Person] persons, 
                  set[Group] groups, 
-                 rel[Id movie, Id person] pim);
+                 rel[Id movie, Id person] stars);
 
 data Movie = movie(str title, real rating, int year);
 

@@ -32,15 +32,13 @@ with Eclipse, numerous importers (e.g. XML, CSV, YAML, JSON etc.) and a rich vis
 
 \subsection{Representing IMDB in Rascal}
 
+%\CAT{Keyword}{alias} Id = \CAT{Keyword}{int};
 \begin{rascal}
-\CAT{Keyword}{alias} Id = \CAT{Keyword}{int};
-\CAT{Keyword}{data} IMDB = imdb(\CAT{Keyword}{map}{}[Id, Movie] movies, \CAT{Keyword}{map}{}[Id, Person] persons, 
-                  \CAT{Keyword}{set}{}[Group] groups, \CAT{Keyword}{rel}{}[Id movie, Id person] pim);
-\CAT{Keyword}{data} Movie = movie(\CAT{Keyword}{str} title, \CAT{Keyword}{real} rating, \CAT{Keyword}{int} year);
-\CAT{Keyword}{data} Person 
-  = actor(\CAT{Keyword}{str} name) 
-  | actress(\CAT{Keyword}{str} name);
-\CAT{Keyword}{data} Group = couple(\CAT{Keyword}{real} avgRating, Id p1, Id p2, \CAT{Keyword}{set}{}[Id] movies);
+\CAT{Keyword}{data} IMDB   = imdb(\CAT{Keyword}{map}{}[Id, Movie] movies, \CAT{Keyword}{map}{}[Id, Person] persons, 
+                   \CAT{Keyword}{set}{}[Group] groups, \CAT{Keyword}{rel}{}[Id movie, Id person] stars);
+\CAT{Keyword}{data} Movie  = movie(\CAT{Keyword}{str} title, \CAT{Keyword}{real} rating, \CAT{Keyword}{int} year);
+\CAT{Keyword}{data} Person = actor(\CAT{Keyword}{str} name) | actress(\CAT{Keyword}{str} name);
+\CAT{Keyword}{data} Group  = couple(\CAT{Keyword}{real} avgRating, Id p1, Id p2, \CAT{Keyword}{set}{}[Id] movies);
 \end{rascal}
 
 \section{Task 1: Synthesizing Test Data}
@@ -69,7 +67,7 @@ IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, pim)
 
 \begin{rascal}
 \CAT{Keyword}{set}{}[Group] makeCouples(IMDB m) \{{}
-    costars = toMap(m.pim); couples = ();
+    costars = toMap(m.stars); couples = ();
     \CAT{Keyword}{for} (mov \textless{}- costars, s1 \textless{}- costars{}[mov], s2 \textless{}- costars{}[mov], s1 \textless{} s2) 
        couples{}[\textless{}s1, s2\textgreater{}]?\{\} += \{{}mov\}{};
     \CAT{Keyword}{return} \{{} couple(0.0, x, y, ms) 
@@ -114,7 +112,7 @@ greaterThan, getRating, getNumOfMovies.
 
 \begin{rascal}
 \CAT{Keyword}{set}{}[Group] makeCliques(IMDB m, \CAT{Keyword}{int} n) \{{}
-    costars = toMap(m.pim); cliques = ();
+    costars = toMap(m.stars); cliques = ();
     \CAT{Keyword}{for} (Id movie \textless{}- costars, \CAT{Keyword}{set}{}[Id] s \textless{}- combinations(costars{}[movie], n))
       cliques{}[s]?\{\} += \{{}movie\}{};
     \CAT{Keyword}{return} \{{}clique(0.0, s, ms) | s \textless{}- cliques, ms := cliques{}[s], size(ms) \textgreater{}= 3 \}{};
