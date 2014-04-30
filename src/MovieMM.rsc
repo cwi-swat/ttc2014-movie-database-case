@@ -1,6 +1,8 @@
 module MovieMM
 
 import Relation;
+import util::Math;
+import Set;
 
 
 alias Id = int;
@@ -14,22 +16,15 @@ data Person
   | actress(str name);
 
 data Group 
-  = couple(real avgRating, Id p1, Id p2, set[Movie] commonMovies)
-  | clique(real avgRating, set[Id] persons, set[Movie] commonMovies);
+  = couple(real avgRating, Id p1, Id p2, set[Id] movies)
+  | clique(real avgRating, set[Id] persons, set[Id] movies);
     
 alias PersonsInMovies = rel[Id movie, Id person];
 
-//set[Person] getPersons(movie(movieId, _,_), mm(_, persons, _, pim)) = 
-//	{p | p <- persons, p.id in pim[movieId]};
-//	
-//set[Movie] getMovies(Person person, mm(movies, persons, _, pim)) = 
-//	{m | <mid, pid> <- pim, pid == person.id, m:movie(mid, _, _, _) <- movies };
-//	
-//set[Movie] getPersons(set[int] ids, mm(_, persons, _, _)) =
-//	{p | id <-ids, actor(id, _) <- persons} + {p | id <-ids, actress(id, _) <- persons};	
-//	
-//set[Movie] getMovies(set[int] ids, mm(movies, _, _, _)) =
-//	{m | id <-ids, m:movie(id, _, _, _) <- movies};
+
+real getRating(Group g) = g.avgRating;
+real getNumOfMovies(Group g) = toReal(size(g.movies));
+
 
 MovieMM addMM(mm(movies1, persons1, groups1, pim1), mm(movies2, persons2, groups2, pim2)) =
 	mm(movies1 + movies2, persons1 + persons2, groups1 + groups2, pim1 + pim2);

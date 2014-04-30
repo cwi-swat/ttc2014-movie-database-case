@@ -19,10 +19,9 @@ set[Group] newGroups(model:mm(movies, persons, groups, pim)){
 	   couples[<s1, s2>]?EMPTY += {movie};
 	}
 	println("Grouped");
-	r = {couple(0.0, x, y, { model.movies[m] | m <- ms } ) | <x, y> <- couples,
-	                                                  ms := couples[<x, y>],
-									  				  size(ms) >= 3
-									  			      };
+	r = { couple(0.0, x, y, ms) | <x, y> <- couples, 
+	                              ms := couples[<x, y>],
+							      size(ms) >= 3 };
     println("Created groups");
     return r;
 									  			      

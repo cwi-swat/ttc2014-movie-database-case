@@ -10,12 +10,5 @@ set[set[int]] combinations(set[int] numbers, int n) {
 }
 
 	
-real getRating(couple(rtg, _, _, _)) = rtg;
-
-real getRating(clique(rtg, _, _)) = rtg;
-
-real getCommonMovies(couple(_, _, _, ms)) = toReal(size(ms));
-
-real getCommonMovies(clique(_, _, ms)) = toTeal(size(ms));
 
 
