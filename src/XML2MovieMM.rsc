@@ -5,8 +5,8 @@ import MovieMM;
 import String;
 import List;
 
-Movie makeMovie(int i, list[Node] as) {
-  m = movie(i, "", 0.0, -1);
+Movie makeMovie(list[Node] as) {
+  m = movie("", 0.0, -1);
   for (a <- as) {
     switch (a) {
       case attribute(_, "rating", rating): m.rating = toReal(rating);
@@ -19,21 +19,21 @@ Movie makeMovie(int i, list[Node] as) {
 
 
 MovieMM moviem(document(root)){
-	movies = {};
-	persons = {};
+	movies = ();
+	persons = ();
 	pim = {};
 	for (i <- [1..size(root.children)]) { // skip namespace attrib
 	    switch (root.children[i]) {
 		case element(_, "Movie", as): {
-		    movies += {makeMovie(i, as)};
+		    movies[i] = makeMovie(as);
 		    if (attribute(_, "persons", ps) <- as) {
               pim += { <i, toInt(substring(s,1)) + 1> | s <- split(" ",ps) };
             }   
 		}
 		case element(_, "Actor",[_*, attribute(_, "name", name), _*]): 
-			persons += actor(i, name);
+			persons[i] = actor(name);
 		case element(_, "Actress", [_*, attribute(_, "name", name), _*]):
-			persons += actress(i, name);
+			persons[i] = actress(name);
 		default:
 		  throw "Unhandled case during loading movie: <root.children[i]>";
 	  }

@@ -2,12 +2,13 @@ module Utils
 
 import MovieMM;
 
-@memo
-set[set[int]] combinations(set[int] numbers, 1) = {{i}| i <- numbers};
+set[set[int]] combinations(set[int] numbers, int n) {
+  if (n == 1) {
+    return {{i}| i <- numbers};
+  }
+  return { s + {i} | i <- numbers, s <- combinations(numbers, n-1), i notin s };
+}
 
-@memo
-default set[set[int]] combinations(set[int] numbers, int n) =
-	({} | it + {s + i} | i <- numbers, s <- combinations(numbers, n-1), i notin s);
 	
 real getRating(couple(rtg, _, _, _)) = rtg;
 

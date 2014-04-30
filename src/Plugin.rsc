@@ -5,6 +5,7 @@ import IO;
 import XML2MovieMM;
 import MovieMM;
 import tasks::ETask2;
+import tasks::Task2;
 import util::Benchmark;
 
 /*
@@ -22,11 +23,13 @@ void benchmarkTask2a() {
 
 
 
-map[str,num] benchmarkCliqueFinding(loc f) 
-  = benchmarkCliqueFinding(f, moviem(parseXMLDOMTrim(readFile(f))), 3);
+map[str,num] benchmarkCliqueFinding(loc f, int n) 
+  = benchmarkCliqueFinding(f, moviem(parseXMLDOMTrim(readFile(f))), n);
 
 map[str, num] benchmarkCliqueFinding(loc f, MovieMM m, int n) 
-  = benchmark(("<f> - <n> ": () { findCliques(m, n); }));
+  = n == 2 
+  ? benchmark(("<f> - <n> ": () { findCouples(m); }))
+  : benchmark(("<f> - <n> ": () { findCliques(m, n); }));
 
 /*
 If you solved also the extension task 2 (finding cliques), please also generate benchmarks for 
@@ -38,7 +41,7 @@ please use the provided models listed in Table 2. The models are available on re
 */
 
 int main(str movieFile = "") {
-  b = benchmarkCliqueFinding(|project://ttc2014-movie-database-case/<movieFile>|);
+  b = benchmarkCliqueFinding(|project://ttc2014-movie-database-case/<movieFile>|, 2);
   iprintln(b);
   return 0;
 }
