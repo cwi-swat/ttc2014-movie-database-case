@@ -6,10 +6,10 @@ import util::Math;
 IMDB createExample(int N) = createExample(imdb((),(),{},{}), N);
 		 
 IMDB createExample(IMDB m0, int N) =
-	( m0 | addMM(it, createTest(i)) | i <- [0..N] );
+	( m0 | mergeDB(it, createTest(i)) | i <- [0..N] );
 	
 IMDB createTest(int i) =
-	addMM(createPositive(i), createNegative(i));
+	mergeDB(createPositive(i), createNegative(i));
 	
 IMDB createPositive(int i) =
 	imdb(movies, people, groups, pim)
@@ -36,5 +36,5 @@ IMDB createNegative(int i) =
 		         <10*i+8, 10*i+7>, <10*i+8, 10*i+8>, <10*i+8, 10*i+9>,
 		         <10*i+9, 10*i+8>, <10*i+9, 10*i+9>};
 		         
-IMDB addMM(imdb(movies1, persons1, groups1, pim1), imdb(movies2, persons2, groups2, pim2)) =
+IMDB mergeDB(imdb(movies1, persons1, groups1, pim1), imdb(movies2, persons2, groups2, pim2)) =
     imdb(movies1 + movies2, persons1 + persons2, groups1 + groups2, pim1 + pim2);

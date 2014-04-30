@@ -19,7 +19,7 @@ needed to complete the transformation (without loading and saving the model).
 
 
 map[str, num] benchmarkTask2a() {
-  sizes = [1000, 2000, 3000, 4000, 5000, 10000, 50000, 100000, 200000];
+  sizes = [1000, 2000]; //, 3000, 4000, 5000, 10000, 50000, 100000, 200000];
   bs = ();
   for (i <- sizes, j <- [2..6]) {
     println("SIZE = <i>, cliquesize = <j>");
@@ -35,7 +35,7 @@ map[str, num] benchmarkTask2a() {
 
 
 map[str,num] benchmarkCliqueFinding(loc f, int n) 
-  = benchmarkCliqueFinding(f.path, moviem(parseXMLDOMTrim(readFile(f))), n);
+  = benchmarkCliqueFinding(f.path, xml2imdb(parseXMLDOMTrim(readFile(f))), n);
 
 map[str, num] benchmarkCliqueFinding(str key, IMDB m, int n) 
   = n == 2 
