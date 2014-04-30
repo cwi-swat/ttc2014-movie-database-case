@@ -1,5 +1,5 @@
 \documentclass[submission,copyright,creativecommons]{eptcs}
-\providecommand{\event}{SOS 2007} % Name of the event you are submitting to
+\providecommand{\event}{TTC 2014} % Name of the event you are submitting to
 \usepackage{breakurl}             % Not needed if you use pdflatex only.
 \usepackage{rascal}
 \usepackage[T1]{fontenc}
@@ -16,19 +16,26 @@
 \maketitle
 
 \begin{abstract}
-
+Rascal is meta programming language for processing source code in the broad sense (models, documents, formats, languages, etc.). In this short note we discuss the implementation of the ``TTC'14 Movie Database Case'' in Rascal. In particular we will highlight the challenges and benefits of using a functional programming language for transformation what is, in essence, a large graph. 
 \end{abstract}
 
 \section{Introduction}
+
+Rascal is a meta programming language for source code analysis and transformation~\cite{Rascal,RascalGTTSE}. 
+Concretely, it is targeted at analyzing and processing any kind of ``source code in the broad sense''; this includes importing, analyzing, transforming, visualizing and generating, models, data files, program code, documentation etc.
+ 
+Although Rascal features a Java-like syntax, it is a functional programming in that all data is immutable (implemented using persistent data structures), and function programming concepts are used throughout: algebraic data types, pattern matching, higher-order functions, comprehensions etc. 
+
+Specifically for the domain of source code manipulation, however, Rascal features powerful primitives for parsing (context-free grammars), traversal (visit statement), relational analysis (transitive closure, image etc.), and code generation (string templates). 
+The standard library includes programming language grammars (e.g., Java), IDE integration
+with Eclipse, numerous importers (e.g. XML, CSV, YAML, JSON etc.) and a rich visualization framework. 
 
 \subsection{Representing IMDB in Rascal}
 
 \begin{rascal}
 \CAT{Keyword}{alias} Id = \CAT{Keyword}{int};
-\CAT{Keyword}{data} IMDB = mm(\CAT{Keyword}{map}{}[Id, Movie] movies,
-                  \CAT{Keyword}{map}{}[Id, Person] persons, 
-                  \CAT{Keyword}{set}{}[Group] groups, 
-                  \CAT{Keyword}{rel}{}[Id movie, Id person] pim);
+\CAT{Keyword}{data} IMDB = imdb(\CAT{Keyword}{map}{}[Id, Movie] movies, \CAT{Keyword}{map}{}[Id, Person] persons, 
+                  \CAT{Keyword}{set}{}[Group] groups, \CAT{Keyword}{rel}{}[Id movie, Id person] pim);
 \CAT{Keyword}{data} Movie = movie(\CAT{Keyword}{str} title, \CAT{Keyword}{real} rating, \CAT{Keyword}{int} year);
 \CAT{Keyword}{data} Person 
   = actor(\CAT{Keyword}{str} name) 
@@ -40,11 +47,11 @@
 
 
 \begin{rascal}
-IMDB createExample(\CAT{Keyword}{int} N) = createExample(mm((),(),\{{}\}{},\{{}\}{}), N);
-IMDB createExample(IMDB m0, \CAT{Keyword}{int} N) = (m0 | addMM(\CAT{Keyword}{it}, createTest(i)) | i \textless{}- {}[\CAT{Keyword}{0}..N]);
-IMDB createTest(\CAT{Keyword}{int} i) = addMM(createPositive(i), createNegative(i));
+IMDB createExample(\CAT{Keyword}{int} N) = createExample(imdb((),(),\{{}\}{},\{{}\}{}), N);
+IMDB createExample(IMDB m0, \CAT{Keyword}{int} N) = (m0 | mergeDB(\CAT{Keyword}{it}, createTest(i)) | i \textless{}- {}[\CAT{Keyword}{0}..N]);
+IMDB createTest(\CAT{Keyword}{int} i) = mergeDB(createPositive(i), createNegative(i));
     
-IMDB createPositive(\CAT{Keyword}{int} i) = mm(movies, people, groups, pim)
+IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, pim)
     \CAT{Keyword}{when} movies := ( j: movie(\CAT{Constant}{"m\textless{}}j\CAT{Constant}{\textgreater{}"}, toReal(j), 2013) | j \textless{}- {}[10*i..10*i+5] ),
          people := ( 10*i: actor(\CAT{Constant}{"a\textless{}}10*i\CAT{Constant}{\textgreater{}"}), 10*i+1: actor(\CAT{Constant}{"a\textless{}}10*i+1\CAT{Constant}{\textgreater{}"}), 
                      10*i+2: actor(\CAT{Constant}{"a\textless{}}10*i+2\CAT{Constant}{\textgreater{}"}), 10*i+3: actress(\CAT{Constant}{"a\textless{}}10*i+3\CAT{Constant}{\textgreater{}"}), 
@@ -61,8 +68,6 @@ IMDB createPositive(\CAT{Keyword}{int} i) = mm(movies, people, groups, pim)
 \section{Task 2: Adding Couples}
 
 \begin{rascal}
-IMDB addCouples(IMDB m) = m{}[groups=makeCouples(m)];
-
 \CAT{Keyword}{set}{}[Group] makeCouples(IMDB m) \{{}
     costars = toMap(m.pim); couples = ();
     \CAT{Keyword}{for} (mov \textless{}- costars, s1 \textless{}- costars{}[mov], s2 \textless{}- costars{}[mov], s1 \textless{} s2) 
@@ -108,11 +113,9 @@ greaterThan, getRating, getNumOfMovies.
 
 
 \begin{rascal}
-IMDB addCliques(IMDB m, \CAT{Keyword}{int} n) = m{}[groups=makeCliques(m, n)];
-
 \CAT{Keyword}{set}{}[Group] makeCliques(IMDB m, \CAT{Keyword}{int} n) \{{}
     costars = toMap(m.pim); cliques = ();
-    \CAT{Keyword}{for} (\CAT{Keyword}{int} movie \textless{}- costars, \CAT{Keyword}{set}{}[\CAT{Keyword}{int}] s \textless{}- combinations(costars{}[movie], n))
+    \CAT{Keyword}{for} (Id movie \textless{}- costars, \CAT{Keyword}{set}{}[Id] s \textless{}- combinations(costars{}[movie], n))
       cliques{}[s]?\{\} += \{{}movie\}{};
     \CAT{Keyword}{return} \{{}clique(0.0, s, ms) | s \textless{}- cliques, ms := cliques{}[s], size(ms) \textgreater{}= 3 \}{};
 \}{}
