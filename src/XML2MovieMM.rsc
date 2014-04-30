@@ -3,39 +3,40 @@ module XML2MovieMM
 import lang::xml::DOM;
 import MovieMM;
 import String;
+import List;
 
-anno int Node @ nodeId;
+Movie makeMovie(int i, list[Node] as) {
+  m = movie(i, "", 0.0, -1);
+  for (a <- as) {
+    switch (a) {
+      case attribute(_, "rating", rating): m.rating = toReal(rating);
+      case attribute(_, "year", year) : m.year = toInt(year);
+      case attribute(_, "title", title) : m.title = title;
+    }
+  }
+  return m;
+}
+
 
 MovieMM moviem(document(root)){
 	movies = {};
 	persons = {};
-	groups = {};
 	pim = {};
-	count = 0;
-	newRoot = top-down visit(root){
-		case element(x, "Movie", children) => {count += 1; element(x, "Movie", children)[@nodeId = count];}
-		case element(x, "Actor", children) => {count += 1; element(x, "Actor", children)[@nodeId = count];}
-	};
-	top-down visit(newRoot){
-		case e:element(_,"Movie",
-					 [attribute(_, "rating", rating),
-					  attribute(_, "year", year),
-					  attribute(_, "title", title),
-					  attribute(_, "persons", personsStr)]):{
-			movies += movie(e@nodeId, title, toReal(rating), toInt(year));
-			people = [toInt(substring(s,1)) | s <- split(" ",personsStr)];
-			for (p <- people) { pim += <e@nodeId, p>; };
+	for (i <- [1..size(root.children)]) { // skip namespace attrib
+	    switch (root.children[i]) {
+		case element(_, "Movie", as): {
+		    movies += {makeMovie(i, as)};
+		    if (attribute(_, "persons", ps) <- as) {
+              pim += { <i, toInt(substring(s,1)) + 1> | s <- split(" ",ps) };
+            }   
 		}
-		case e:element(id, _,"Actor",
-					 [attribute(_, "movies", moviesStr),
-					  attribute(_, "name", name)]):{
-			persons += actor(e@nodeId, name);
-		}
-		case e:element(id, _,"Actress",
-					 [attribute(_, "movies", moviesStr),
-					  attribute(_, "name", name)]):{
-			persons += actress(e@nodeId, name);
-		}
+		case element(_, "Actor",[_*, attribute(_, "name", name), _*]): 
+			persons += actor(i, name);
+		case element(_, "Actress", [_*, attribute(_, "name", name), _*]):
+			persons += actress(i, name);
+		default:
+		  throw "Unhandled case during loading movie: <root.children[i]>";
+	  }
 	}
-	return mm(movies, persons, groups, pim);
+	return mm(movies, persons, {}, pim);
 }
