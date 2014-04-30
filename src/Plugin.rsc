@@ -4,9 +4,11 @@ import lang::xml::DOM;
 import IO;
 import XML2IMDB;
 import IMDB;
+import tasks::ETask1;
 import tasks::ETask2;
 import tasks::Task1;
 import tasks::Task2;
+import tasks::Task3;
 import util::Benchmark;
 
 /*
@@ -32,10 +34,10 @@ map[str, num] benchmarkTask2a() {
 }
 
 
-
+IMDB load(loc f) = xml2imdb(parseXMLDOMTrim(readFile(f)));
 
 map[str,num] benchmarkCliqueFinding(loc f, int n) 
-  = benchmarkCliqueFinding(f.path, xml2imdb(parseXMLDOMTrim(readFile(f))), n);
+  = benchmarkCliqueFinding(f.path, load(f), n);
 
 map[str, num] benchmarkCliqueFinding(str key, IMDB m, int n) 
   = n == 2 
@@ -51,8 +53,30 @@ please use the values for N shown in Table 1. For the IMDb data version,
 please use the provided models listed in Table 2. The models are available on request2.
 */
 
+void smokeTest() {
+  l = |project://ttc2014-movie-database-case/input/imdb-0005000-49930.movies|;
+  println("Loading <l.path>...");
+  m = xml2imdb(parseXMLDOMTrim(readFile(l)));
+  
+  println("Adding couples");
+  m2 = addCouples(m);
+  
+  println("Adding group ratings...");
+  m3 = addGroupRatings(m2);
+  
+  println("Top 15 avg rating...");
+  iprintln(top15avgRating(m3));
+  
+  println("Top 15 num of movies...");
+  iprintln(top15commonMovies(m3));
+  
+  println("Done.");
+}
+
 int main(str movieFile = "") {
   l = |project://ttc2014-movie-database-case/<movieFile>|;
+  
+  
   //for (i <- [3]) {
     b = benchmarkCliqueFinding(l, 2);
     iprintln(b);
