@@ -7,8 +7,6 @@ To run the smoke test (Task 2, Task 3, Extension Task 2):
 
     ./run.sh
     
-To run the smoke test.
-
 To benchmark grouping on .movies file(s) in `./input` do:
 
     ./run.sh benchmark 2,3 input/*.movies
