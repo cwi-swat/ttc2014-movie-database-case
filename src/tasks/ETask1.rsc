@@ -1,7 +1,7 @@
 module tasks::ETask1
 
 import tasks::Task3;
-import MovieMM;
+import IMDB;
 import Set;
 import List;
 import util::Math;
@@ -11,11 +11,11 @@ alias Ranking = lrel[set[Person], real, int];
 
 // Assumes couples are already in the model + computed average ratings.
 
-Ranking top15avgRating(MovieMM m) = rank(15, m, greaterThan(getRating));
+Ranking top15avgRating(IMDB m) = rank(15, m, greaterThan(getRating));
 	
-Ranking top15commonMovies(MovieMM m) = rank(15, m, greaterThan(getNumOfMovies));
+Ranking top15commonMovies(IMDB m) = rank(15, m, greaterThan(getNumOfMovies));
 		
-Ranking rank(int n, MovieMM m, bool(Group, Group) gt) =
+Ranking rank(int n, IMDB m, bool(Group, Group) gt) =
 	take(n, 
 	   [<{m.persons[x] | x <- getPersons(g)}, g.avgRating, size(g.movies)> 
 	        | Group g <- sort(m.groups, gt)]);

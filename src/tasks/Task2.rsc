@@ -1,12 +1,12 @@
 module tasks::Task2
 
-import MovieMM;
+import IMDB;
 import Set;
 import Map;
 
-MovieMM addCouples(MovieMM m) = m[groups=makeCouples(m)];
+IMDB addCouples(IMDB m) = m[groups=makeCouples(m)];
 
-set[Group] makeCouples(MovieMM m){
+set[Group] makeCouples(IMDB m){
 	map[int movie, set[int] stars] costars = toMap(m.pim);
 	map[tuple[int star1, int star2] couple, set[int] movies] couples = ();
 	

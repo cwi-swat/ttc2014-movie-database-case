@@ -7,7 +7,7 @@ extend tasks::ETask2; // for clique
 set[Id] getPersons(clique(_, set[Id] ps, _)) = ps; 
 
 // Same as ETask1 because it's polymorph.
-Ranking top15cliqueAvgRating(MovieMM m) = top15AvgRating(m);
+Ranking top15cliqueAvgRating(IMDB m) = top15AvgRating(m);
     
-Ranking top15cliqueCommonMovies(MovieMM m) = top15commonMovies(m);
+Ranking top15cliqueCommonMovies(IMDB m) = top15commonMovies(m);
 

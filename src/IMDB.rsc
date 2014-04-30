@@ -1,8 +1,8 @@
-module MovieMM
+module IMDB
 
 alias Id = int;
 
-data MovieMM = mm(map[Id, Movie] movies,
+data IMDB = mm(map[Id, Movie] movies,
                   map[Id, Person] persons, 
                   set[Group] groups, 
                   rel[Id movie, Id person] pim);
@@ -13,7 +13,6 @@ data Person
   = actor(str name) 
   | actress(str name);
 
-data Group 
-  = couple(real avgRating, Id p1, Id p2, set[Id] movies);
+data Group = couple(real avgRating, Id p1, Id p2, set[Id] movies);
     
 

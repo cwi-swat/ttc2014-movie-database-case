@@ -2,8 +2,8 @@ module Plugin
 
 import lang::xml::DOM;
 import IO;
-import XML2MovieMM;
-import MovieMM;
+import XML2IMDB;
+import IMDB;
 import tasks::ETask2;
 import tasks::Task1;
 import tasks::Task2;
@@ -37,7 +37,7 @@ map[str, num] benchmarkTask2a() {
 map[str,num] benchmarkCliqueFinding(loc f, int n) 
   = benchmarkCliqueFinding(f.path, moviem(parseXMLDOMTrim(readFile(f))), n);
 
-map[str, num] benchmarkCliqueFinding(str key, MovieMM m, int n) 
+map[str, num] benchmarkCliqueFinding(str key, IMDB m, int n) 
   = n == 2 
   ? benchmark(("<key>(<n>)": () { addCouples(m); }))
   : benchmark(("<key>(<n>)": () { addCliques(m, n); }));

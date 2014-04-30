@@ -1,24 +1,11 @@
-module XML2MovieMM
+module XML2IMDB
 
 import lang::xml::DOM;
-import MovieMM;
+import IMDB;
 import String;
 import List;
 
-Movie makeMovie(list[Node] as) {
-  m = movie("", 0.0, -1);
-  for (a <- as) {
-    switch (a) {
-      case attribute(_, "rating", rating): m.rating = toReal(rating);
-      case attribute(_, "year", year) : m.year = toInt(year);
-      case attribute(_, "title", title) : m.title = title;
-    }
-  }
-  return m;
-}
-
-
-MovieMM moviem(document(root)){
+IMDB xml2imdb(document(root)){
 	movies = ();
 	persons = ();
 	pim = {};
@@ -38,5 +25,17 @@ MovieMM moviem(document(root)){
 		  throw "Unhandled case during loading movie: <root.children[i]>";
 	  }
 	}
-	return mm(movies, persons, {}, pim);
+	return imdb(movies, persons, {}, pim);
+}
+
+Movie makeMovie(list[Node] as) {
+  m = movie("", 0.0, -1);
+  for (a <- as) {
+    switch (a) {
+      case attribute(_, "rating", rating): m.rating = toReal(rating);
+      case attribute(_, "year", year) : m.year = toInt(year);
+      case attribute(_, "title", title) : m.title = title;
+    }
+  }
+  return m;
 }
