@@ -7,21 +7,20 @@ import List;
 import util::Math;
 import Utils;
 
-alias Ranking = list[tuple[Person, Person, real, int]]; 
+alias Ranking = lrel[Person, Person, real, int]; 
 
-Ranking top15couplesAvgRating(MovieMM m) =
-	top15couples(m, getRating);
-	
-Ranking top15couplesCommonMovies(MovieMM m) =
-	top15couples(m, getNumOfMovies);
-	
-bool(Group, Group) less(real(Group) sel) =
-	bool(c1:couple(_, p1, p2, _), c2:couple(_, p3, p4, _)){
-		i1 = sel(c1);
-		i2 = sel(c2);
-		return (i1==i2) ? (p1==p3 ? p2<p4 : p1<p3) : i1 < i2;
-	};
-	
-Ranking  top15couples(MovieMM m, real(Group) sel) =
-	take(15, reverse([<m.persons[g.p1], m.persons[g.p2], g.avgRating, size(g.movies)> | Group g <- sort(m.groups, less(sel))]));
+// Assumes couples are already in the model + computed average ratings.
 
+Ranking top15couplesAvgRating(MovieMM m) = rank(15, m, greaterThan(getRating));
+	
+Ranking top15couplesCommonMovies(MovieMM m) = rank(15, m, greaterThan(getNumOfMovies));
+		
+Ranking  rank(int n, MovieMM m, bool(Group, Group) gt) =
+	take(n, [<m.persons[g.p1], m.persons[g.p2], g.avgRating, size(g.movies)> | Group g <- sort(m.groups, gt)]);
+
+private bool(Group, Group) greaterThan(real(Group) sel) =
+    bool(Group g1, Group g2){
+        i1 = sel(g1);
+        i2 = sel(g2);
+        return (i1==i2) ? g1 > g2 : i1 > i2;
+    };

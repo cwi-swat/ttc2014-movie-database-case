@@ -35,3 +35,6 @@ MovieMM createNegative(int i) =
 		         <10*i+7, 10*i+6>, <10*i+7, 10*i+7>, <10*i+7, 10*i+8>,
 		         <10*i+8, 10*i+7>, <10*i+8, 10*i+8>, <10*i+8, 10*i+9>,
 		         <10*i+9, 10*i+8>, <10*i+9, 10*i+9>};
+		         
+MovieMM addMM(mm(movies1, persons1, groups1, pim1), mm(movies2, persons2, groups2, pim2)) =
+    mm(movies1 + movies2, persons1 + persons2, groups1 + groups2, pim1 + pim2);

@@ -21,10 +21,6 @@ data Group
     
 alias PersonsInMovies = rel[Id movie, Id person];
 
-
 real getRating(Group g) = g.avgRating;
 real getNumOfMovies(Group g) = toReal(size(g.movies));
 
-
-MovieMM addMM(mm(movies1, persons1, groups1, pim1), mm(movies2, persons2, groups2, pim2)) =
-	mm(movies1 + movies2, persons1 + persons2, groups1 + groups2, pim1 + pim2);

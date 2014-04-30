@@ -6,10 +6,9 @@ import IO;
 import Map;
 import Utils;
 
-MovieMM findCliques(m:mm(movies, persons, groups, pim), int n) =
-	mm(movies, persons, newGroups(m, n), pim);
+MovieMM addCliques(MovieMM m, int n) = m[groups=makeCliques(m, n)];
 
-set[Group] newGroups(model:mm(movies, persons, groups, pim), int n) {
+set[Group] makeCliques(model:mm(movies, persons, groups, pim), int n) {
     map[int movie, set[int] stars] costars = toMap(pim);
     map[set[int] clique, set[int] movies] cliques = ();
     
@@ -18,8 +17,5 @@ set[Group] newGroups(model:mm(movies, persons, groups, pim), int n) {
       cliques[s]?EMPTY += {movie};
     }
     
-	return {clique(0.0, s, getMovies(ms, model)) | s <- domain(cliques),
-	                                               ms := cliques[s],
-									  			   size(ms) >= 3
-									  			   };
+	return {clique(0.0, s, ms) | s <- cliques, ms := cliques[s], size(ms) >= 3 };
 }

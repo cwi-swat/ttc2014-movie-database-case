@@ -28,8 +28,8 @@ map[str,num] benchmarkCliqueFinding(loc f, int n)
 
 map[str, num] benchmarkCliqueFinding(loc f, MovieMM m, int n) 
   = n == 2 
-  ? benchmark(("<f> - <n> ": () { findCouples(m); }))
-  : benchmark(("<f> - <n> ": () { findCliques(m, n); }));
+  ? benchmark(("<f> - <n> ": () { addCouples(m); }))
+  : benchmark(("<f> - <n> ": () { addCliques(m, n); }));
 
 /*
 If you solved also the extension task 2 (finding cliques), please also generate benchmarks for 
@@ -41,7 +41,10 @@ please use the provided models listed in Table 2. The models are available on re
 */
 
 int main(str movieFile = "") {
-  b = benchmarkCliqueFinding(|project://ttc2014-movie-database-case/<movieFile>|, 2);
-  iprintln(b);
+  l = |project://ttc2014-movie-database-case/<movieFile>|;
+  for (i <- [2..5]) {
+    b = benchmarkCliqueFinding(l, i);
+    iprintln(b);
+  }
   return 0;
 }
