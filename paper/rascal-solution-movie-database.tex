@@ -19,22 +19,34 @@
 Rascal is meta programming language for processing source code in the broad sense (models, documents, formats, languages, etc.). In this short note we discuss the implementation of the ``TTC'14 Movie Database Case'' in Rascal. In particular we will highlight the challenges and benefits of using a functional programming language for transformation what is, in essence, a large graph. 
 \end{abstract}
 
-\section{Introduction}
+\section*{Introduction}
 
 Rascal is a meta programming language for source code analysis and transformation~\cite{Rascal,RascalGTTSE}. 
 Concretely, it is targeted at analyzing and processing any kind of ``source code in the broad sense''; this includes importing, analyzing, transforming, visualizing and generating, models, data files, program code, documentation etc.
  
-Although Rascal features a Java-like syntax, it is a functional programming in that all data is immutable (implemented using persistent data structures), and function programming concepts are used throughout: algebraic data types, pattern matching, higher-order functions, comprehensions etc. 
+Although at first sight Rascal may seem an imperative language (e.g., due to the  Java-like syntax), it is a functional programming in the sense that all data is immutable (implemented using persistent data structures), and functional programming concepts are used throughout: algebraic data types, pattern matching, higher-order functions, comprehensions etc. 
 
 Specifically for the domain of source code manipulation, however, Rascal features powerful primitives for parsing (context-free grammars), traversal (visit statement), relational analysis (transitive closure, image etc.), and code generation (string templates). 
 The standard library includes programming language grammars (e.g., Java), IDE integration
 with Eclipse, numerous importers (e.g. XML, CSV, YAML, JSON etc.) and a rich visualization framework. 
 
-\subsection{Representing IMDB in Rascal}
+Rascal is not a model-transformation system in the narrow sense of the term. In the context of model transformation we identify the following challenges:
+\begin{itemize}
+\item Since Rascal is based on immutable data, models have to be represented as (containment) trees with explicit, super-imposed cross-references. As a result, some transformation have to explicitly look up model elements, given their identity. 
+\item For the same reason, model transformation amounts  non-destructive rewriting. That is, it is impossible to perform in-place updates. This has benefits for reasoning (locality), but might affect performance.
+\end{itemize}
+In the following sections we discuss the realization of the TTC'14 tasks in Rascal. We conclude the paper with some observations and concluding remarks. 
+All code examples  can be found  online at:
+\begin{quote}
+\url{https://github.com/cwi-swat/ttc2014-movie-database-case}
+\end{quote}
 
-Since Rascal is a functional programming language, where all data is immutable, the IMDB models have to be represented as trees instead of graphs. If there are cross references in the model, these have to be represented using (symbolic or opaque) identifiers which can be used to look up referenced elements. 
 
-The following data type captures the structure of the IMDB models:
+\section*{Representing IMDB in Rascal}
+
+Since Rascal is a functional programming language, where all data is immutable, the IMDB models have to be represented as trees instead of graphs. If there are cross references in the model, these have to be represented using (symbolic or opaque) identifiers which can be used to look up referenced elements. We use an algebraic data type to model IMDB models. 
+
+The following data type captures the structure of  IMDB models:
 %\CAT{Keyword}{alias} Id = \CAT{Keyword}{int};
 \begin{rascal}
 \CAT{Keyword}{data} IMDB   = imdb(\CAT{Keyword}{map}{}[Id, Movie] movies, \CAT{Keyword}{map}{}[Id, Person] persons, 
@@ -53,13 +65,13 @@ The \texttt{Group} type captures couples as required in Task 2. A \texttt{couple
 
 
 
-\section{Task 1: Synthesizing Test Data}
+\section*{Task 1: Synthesizing Test Data}
 
 Synthesizing test data creates values of the type \texttt{IMDB} as declared in the previous section. The process starts with an empty model (\texttt{imdb((), (), \{\}, \{\})}\footnote{The syntax \texttt{()} indicates an empty map.}), and then consecutively merges it with test models for a value in the range $1,...,n$.
 Each test model in turn consists of merging the negative and positive test model as discussed in the assignment. 
 As an example, below we list the creation of the positive test model:
 \begin{rascal}
-IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, {}, stars)
+IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, \{\}, stars)
     \CAT{Keyword}{when} movies := ( j: movie(\CAT{Constant}{"m\textless{}}j\CAT{Constant}{\textgreater{}"}, toReal(j), 2013) | j \textless{}- {}[10*i..10*i+5] ),
          people := ( 10*i: actor(\CAT{Constant}{"a\textless{}}10*i\CAT{Constant}{\textgreater{}"}), 10*i+1: actor(\CAT{Constant}{"a\textless{}}10*i+1\CAT{Constant}{\textgreater{}"}), 
                      10*i+2: actor(\CAT{Constant}{"a\textless{}}10*i+2\CAT{Constant}{\textgreater{}"}), 10*i+3: actress(\CAT{Constant}{"a\textless{}}10*i+3\CAT{Constant}{\textgreater{}"}), 
@@ -75,7 +87,7 @@ The function uses map comprehensions to create the \texttt{movies} and \texttt{p
 
 
 
-\section{Task 2: Adding Couples}
+\section*{Task 2: Adding Couples}
 
 Task 2 consists of enriching IMDB models with ``couples'': pairs of persons that performed in the same movie, once or more often. This transformation is expressed by updating the \texttt{couples} field with the result of the following function:
 
@@ -96,23 +108,22 @@ In the final statement, a set of Groups is returned containing all couples which
 
 
 
-\section{Task 3: Computing Average Ratings for Couples}
+\section*{Task 3: Computing Average Ratings for Couples}
 
 As can be seen in the previous section, the average rating field of couples is initialized to 0.0. In this task we again transform an IMDB model, this time enriching each couple with its average rating of the movies the couple co-starred in. 
 
 The following function performs this transformation:
 \begin{rascal}
 IMDB addGroupRatings(IMDB m) = m{}[groups=gs]
-  \CAT{Keyword}{when} gs :=
-    \{{} g{}[avgRating = toReal(mean(ratings))] 
-       | g \textless{}- m.groups, ratings := {}[ m.movies{}[x].rating | x \textless{}- g.movies ]\}{};
+  \CAT{Keyword}{when} gs := \{{} g{}[avgRating = mean([ m.movies{}[x].rating | x \textless{}- g.movies ])] 
+                | g \textless{}- m.groups \}{};
 \end{rascal}
 
 The groups field of the model \texttt{m} is updated with a new set of groups, as created in the when-clause of the function. 
 The new set of groups is created using a comprehension, updating the \texttt{avgRating} field of each group. 
 The average is computed based on the list of ratings obtained from the movies contained in \texttt{m} that are referenced in the group \texttt{g}. 
 
-\section{Extension Task 1: Top 15 Rankings}
+\section*{Extension Task 1: Top 15 Rankings}
 
 The object of the extension Task 1 is to compute top 15 rankings based on the average ratings or number of movies a couple participated in. 
 To represent rankings, we first introduce the following type alias:
@@ -142,7 +153,7 @@ Ranking top15commonMovies(IMDB m) = rank(15, m, greaterThan(getNumOfMovies));
 The last argument to rank is constructed using a higher-order function, \texttt{greaterThan}, which constructs comparison functions on groups based on the argument getter function (i.e. \texttt{getRating} and \texttt{getNumOfMovies}). So in the first case, rank is called with a comparison predicate based on average ratings of groups, whereas in the second case, groups are ordered based on the number of shared movies in a group.
 
 
-\section{Extension Task 2: Generalizing groups to cliques}
+\section*{Extension Task 2: Generalizing groups to cliques}
 
 The extension to task 2 consists of generalizing couples to arbitrarily sized cliques of people who co-starred in the same set of movies. A couple is a special case of this situation, where the clique size is 2. 
 To represent arbitrary cliques in the model, we modularly extended the Group data type (see Section~1.1) as follows:
@@ -169,37 +180,33 @@ Instead of iterating over pairs of actors explicitly, we now iterate over all co
 \paragraph{Extension Task 3 \& 4}
 
 These are the same as Task 3 and Extension of Task 1 respectively,
-because the code is polymorph over groups.
+because the code is polymorph over groups. Only in the latter case, the \texttt{getPersons} accessor needs to be extended to accomodate the new \texttt{clique} constructor defined in Extension Task 2. 
 
-\section{Concluding Remarks}
+\section*{Observations and Concluding Remarks}
 
-The tasks were easy to implement, with little code. The size of the
+
+Looking back at the effort implementing the TTC'14 tasks in Rascal we can observe that Rascal posed no problems for solving the tasks. The solutions are small and declarative.  The size of the
 implementation is around 130 SLOC, including some helper functions,
-but excluding loading the model from XML which is another 38 SLOC.
+but excluding loading the model from XML which is another 38 SLOC. Although Rascal allows side-effects in (local) variables, with the exception of \texttt{makeCouples} and \texttt{makeCliques} none of the function use side-effects of any kind. 
 
-Rascal's module system showed its benefits; some tasks could be
-implemented as modular extensions of earlier tasks, combining
-extension of data types (Extension Task 2) and extension of functions
-(Extension Tasks 3 and 4).
+Another observation is that the tasks mostly involved querying the models and aggregrating new result to enrich the model. In such cases, comprehensions are valueable features to create sets, maps, or relations of model elements.  Rascal's built-in features for traversal and powerful pattern matching (e.g., deep pattern matching), were not (even) needed to perform most of the tasks in an adequate way.
 
-Performance: extracting cliques $> 2$ takes longer than 5 minutes on a
-3.3Mb IMDB file. The most probable reason is that
-\texttt{combinations} is slow, even though we use a dynamic
-programming algorithm; it is possible that immutability works against
-us here.
+Related to the nature of the tasks, the fact that cross references had to be represented and managed explicitly posed no problem. In all cases the top-level IMDB model was always available to perform the necessarty reference lookups in the \texttt{movies} and \texttt{persons} tables. 
+It is, however, possible that  transformations that actually change the referential structure of a model require more administration to keep referential integrity in tact.
+
+In terms of performance, we observed that the immutability of models was not an inhibiting factor most of the time, but again, this might be influenced by the nature of tasks. In absence of suitable benchmarks to compare, we can at this point only speculate about whether the Rascal implementation is slow. 
+As an example, we observed that  extracting cliques $> 2$ takes much longer than 5 minutes on a
+3.3Mb IMDB file.  The most probable reason is that
+the function \texttt{combinations} has high computational complexity, even though we use a dynamic programming implementation.
+One area where destructive, in-place updates could have improved performance is, again, in the couples/cliques code. Because of immutability, we have to generate the full set of all couples/cliques \textit{first}, then filter them, and finally insert them into the model. 
+In an imperative setting, the couples could be inserted directly in the model, after which the model itself could be pruned to remove the couples/cliques with less than 3 movies. 
 
 
-Lookup via maps: need access to the whole model.
-Comprehensions
-Higher-order functions
+Finally, we would like to point out that Rascal's module system proved
+its value. Some tasks could be implemented as modular extensions of
+earlier tasks, combining extension of data types (Extension Task 2)
+and extension of functions (Extension Tasks 3 and 4).
 
-Rascal's built-in features for traversal and powerful pattern matchin (e.g., deep pattern matching), were not (even) needed to perform the tasks in a nice an declarative way. 
-
-Transformations simple: no change of referential structure. 
-
-\section{Bibliography}
-
-\nocite{*}
 \bibliographystyle{eptcs}
 \bibliography{generic}
 \end{document}
