@@ -32,6 +32,9 @@ with Eclipse, numerous importers (e.g. XML, CSV, YAML, JSON etc.) and a rich vis
 
 \subsection{Representing IMDB in Rascal}
 
+Since Rascal is a functional programming language, where all data is immutable, the IMDB models have to be represented as trees instead of graphs. If there are cross references in the model, these have to be represented using (symbolic or opaque) identifiers which can be used to look up referenced elements. 
+
+The following data type captures the structure of the IMDB models:
 %\CAT{Keyword}{alias} Id = \CAT{Keyword}{int};
 \begin{rascal}
 \CAT{Keyword}{data} IMDB   = imdb(\CAT{Keyword}{map}{}[Id, Movie] movies, \CAT{Keyword}{map}{}[Id, Person] persons, 
@@ -41,6 +44,14 @@ with Eclipse, numerous importers (e.g. XML, CSV, YAML, JSON etc.) and a rich vis
 \CAT{Keyword}{data} Group  = couple(\CAT{Keyword}{real} avgRating, Id p1, Id p2, \CAT{Keyword}{set}{}[Id] movies);
 \end{rascal}
 
+An IMDB model is constructed using the \texttt{imdb} constructor. It contains the set of movies, persons, groups and a relation \texttt{stars} encoding which movie stars which persons. 
+Both movies and persons are identified using the opaque \texttt{Id} type. 
+To model this identification, the \texttt{movies} and \texttt{persons} field of an IMDB model are maps from such identifiers to the actual movie resp. person. 
+
+Movies and persons are simple values containing the various fields that pertain to them. 
+
+
+
 \section{Task 1: Synthesizing Test Data}
 
 
@@ -49,13 +60,13 @@ IMDB createExample(\CAT{Keyword}{int} N) = createExample(imdb((),(),\{{}\}{},\{{
 IMDB createExample(IMDB m0, \CAT{Keyword}{int} N) = (m0 | mergeDB(\CAT{Keyword}{it}, createTest(i)) | i \textless{}- {}[\CAT{Keyword}{0}..N]);
 IMDB createTest(\CAT{Keyword}{int} i) = mergeDB(createPositive(i), createNegative(i));
     
-IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, pim)
+IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, stars)
     \CAT{Keyword}{when} movies := ( j: movie(\CAT{Constant}{"m\textless{}}j\CAT{Constant}{\textgreater{}"}, toReal(j), 2013) | j \textless{}- {}[10*i..10*i+5] ),
          people := ( 10*i: actor(\CAT{Constant}{"a\textless{}}10*i\CAT{Constant}{\textgreater{}"}), 10*i+1: actor(\CAT{Constant}{"a\textless{}}10*i+1\CAT{Constant}{\textgreater{}"}), 
                      10*i+2: actor(\CAT{Constant}{"a\textless{}}10*i+2\CAT{Constant}{\textgreater{}"}), 10*i+3: actress(\CAT{Constant}{"a\textless{}}10*i+3\CAT{Constant}{\textgreater{}"}), 
                      10*i+4: actress(\CAT{Constant}{"a\textless{}}10*i+4\CAT{Constant}{\textgreater{}"}) ),
          groups := \{{}\}{},
-         pim := \{{}\textless{}10*i, 10*i\textgreater{}, \textless{}10*i, 10*i+1\textgreater{}, \textless{}10*i, 10*i+2\textgreater{}, \textless{}10*i, 10*i+3\textgreater{},
+         stars := \{{}\textless{}10*i, 10*i\textgreater{}, \textless{}10*i, 10*i+1\textgreater{}, \textless{}10*i, 10*i+2\textgreater{}, \textless{}10*i, 10*i+3\textgreater{},
                  \textless{}10*i+1, 10*i\textgreater{}, \textless{}10*i+1, 10*i+1\textgreater{}, \textless{}10*i+1, 10*i+2\textgreater{}, \textless{}10*i+1, 10*i+3\textgreater{},
                  \textless{}10*i+2, 10*i+1\textgreater{}, \textless{}10*i+2, 10*i+2\textgreater{}, \textless{}10*i+2, 10*i+3\textgreater{},
                  \textless{}10*i+3, 10*i+1\textgreater{}, \textless{}10*i+3, 10*i+2\textgreater{}, \textless{}10*i+3, 10*i+3\textgreater{}, \textless{}10*i+3, 10*i+4\textgreater{},
@@ -123,6 +134,23 @@ greaterThan, getRating, getNumOfMovies.
 
 These are the same as Task 3 and Extension of Task 1 respectively,
 because the code is polymorph over groups.
+
+\section{Concluding Remarks}
+
+The tasks were easy to implement, with little code. The size of the
+implementation is around 130 SLOC, including some helper functions,
+but excluding loading the model from XML which is another 38 SLOC.
+
+Rascal's module system showed its benefits; some tasks could be
+implemented as modular extensions of earlier tasks, combining
+extension of data types (Extension Task 2) and extension of functions
+(Extension Tasks 3 and 4).
+
+Performance: extracting cliques $> 2$ takes longer than 5 minutes on a
+3.3Mb IMDB file. The most probable reason is that
+\texttt{combinations} is slow, even though we use a dynamic
+programming algorithm; it is possible that immutability works against
+us here.
 
 \section{Bibliography}
 
