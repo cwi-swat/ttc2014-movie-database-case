@@ -16,7 +16,7 @@
 \maketitle
 
 \begin{abstract}
-Rascal is meta programming language for processing source code in the broad sense (models, documents, formats, languages, etc.). In this short note we discuss the implementation of the ``TTC'14 Movie Database Case'' in Rascal. In particular we will highlight the challenges and benefits of using a functional programming language for transformation what is, in essence, a large graph. 
+Rascal is meta programming language for processing source code in the broad sense (models, documents, formats, languages, etc.). In this short note we discuss the implementation of the ``TTC'14 Movie Database Case'' in Rascal. In particular we will highlight the challenges and benefits of using a functional programming language for transforming graph-based models. 
 \end{abstract}
 
 \section*{Introduction}
@@ -24,7 +24,7 @@ Rascal is meta programming language for processing source code in the broad sens
 Rascal is a meta programming language for source code analysis and transformation~\cite{Rascal,RascalGTTSE}. 
 Concretely, it is targeted at analyzing and processing any kind of ``source code in the broad sense''; this includes importing, analyzing, transforming, visualizing and generating, models, data files, program code, documentation etc.
  
-Although at first sight Rascal may seem an imperative language (e.g., due to the  Java-like syntax), it is a functional programming in the sense that all data is immutable (implemented using persistent data structures), and functional programming concepts are used throughout: algebraic data types, pattern matching, higher-order functions, comprehensions etc. 
+Although at first sight Rascal may seem an imperative language (e.g., due to the  Java-like syntax), it is a functional programming in the sense that all data is immutable (implemented using persistent data structures). Functional programming concepts are at the core of the language: algebraic data types, pattern matching, higher-order functions, comprehensions etc. 
 
 Specifically for the domain of source code manipulation, however, Rascal features powerful primitives for parsing (context-free grammars), traversal (visit statement), relational analysis (transitive closure, image etc.), and code generation (string templates). 
 The standard library includes programming language grammars (e.g., Java), IDE integration
