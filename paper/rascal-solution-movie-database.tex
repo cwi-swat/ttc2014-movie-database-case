@@ -49,23 +49,21 @@ Both movies and persons are identified using the opaque \texttt{Id} type.
 To model this identification, the \texttt{movies} and \texttt{persons} field of an IMDB model are maps from such identifiers to the actual movie resp. person. 
 
 Movies and persons are simple values containing the various fields that pertain to them. 
+The \texttt{Group} type captures couples as required in Task 2. A \texttt{couple} references two persons and a set of movies using the opaque identifiers \texttt{Id}. 
 
 
 
 \section{Task 1: Synthesizing Test Data}
 
-
+Synthesizing test data creates values of the type \texttt{IMDB} as declared in the previous section. The process starts with an empty model (\texttt{imdb((), (), \{\}, \{\})}\footnote{The syntax \texttt{()} indicates an empty map.}), and then consecutively merges it with test models for a value in the range $1,...,n$.
+Each test model in turn consists of merging the negative and positive test model as discussed in the assignment. 
+As an example, below we list the creation of the positive test model:
 \begin{rascal}
-IMDB createExample(\CAT{Keyword}{int} N) = createExample(imdb((),(),\{{}\}{},\{{}\}{}), N);
-IMDB createExample(IMDB m0, \CAT{Keyword}{int} N) = (m0 | mergeDB(\CAT{Keyword}{it}, createTest(i)) | i \textless{}- {}[\CAT{Keyword}{0}..N]);
-IMDB createTest(\CAT{Keyword}{int} i) = mergeDB(createPositive(i), createNegative(i));
-    
-IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, stars)
+IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, {}, stars)
     \CAT{Keyword}{when} movies := ( j: movie(\CAT{Constant}{"m\textless{}}j\CAT{Constant}{\textgreater{}"}, toReal(j), 2013) | j \textless{}- {}[10*i..10*i+5] ),
          people := ( 10*i: actor(\CAT{Constant}{"a\textless{}}10*i\CAT{Constant}{\textgreater{}"}), 10*i+1: actor(\CAT{Constant}{"a\textless{}}10*i+1\CAT{Constant}{\textgreater{}"}), 
                      10*i+2: actor(\CAT{Constant}{"a\textless{}}10*i+2\CAT{Constant}{\textgreater{}"}), 10*i+3: actress(\CAT{Constant}{"a\textless{}}10*i+3\CAT{Constant}{\textgreater{}"}), 
                      10*i+4: actress(\CAT{Constant}{"a\textless{}}10*i+4\CAT{Constant}{\textgreater{}"}) ),
-         groups := \{{}\}{},
          stars := \{{}\textless{}10*i, 10*i\textgreater{}, \textless{}10*i, 10*i+1\textgreater{}, \textless{}10*i, 10*i+2\textgreater{}, \textless{}10*i, 10*i+3\textgreater{},
                  \textless{}10*i+1, 10*i\textgreater{}, \textless{}10*i+1, 10*i+1\textgreater{}, \textless{}10*i+1, 10*i+2\textgreater{}, \textless{}10*i+1, 10*i+3\textgreater{},
                  \textless{}10*i+2, 10*i+1\textgreater{}, \textless{}10*i+2, 10*i+2\textgreater{}, \textless{}10*i+2, 10*i+3\textgreater{},
@@ -73,8 +71,13 @@ IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, stars)
                  \textless{}10*i+4, 10*i+1\textgreater{}, \textless{}10*i+4, 10*i+2\textgreater{}, \textless{}10*i+4, 10*i+3\textgreater{}, \textless{}10*i+4, 10*i+4\textgreater{}\}{};          
 \end{rascal}
 
+The function uses map comprehensions to create the \texttt{movies} and \texttt{people} fields, and a binary relation literal to create the \texttt{stars} relation. It then simply returns a values containing all those fields.
+
+
 
 \section{Task 2: Adding Couples}
+
+Task 2 consists of enriching IMDB models with ``couples'': pairs of persons that performed in the same movie, once or more often. This transformation is expressed by updating the \texttt{couples} field with the result of the following function:
 
 \begin{rascal}
 \CAT{Keyword}{set}{}[Group] makeCouples(IMDB m) \{{}
@@ -86,14 +89,28 @@ IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, groups, stars)
 \}{}
 \end{rascal}
 
+This function first convert the binary relation \texttt{stars} to a map from movie Id to set of person Ids. The central for loop iterates over all movies and all combinations of two actors and adds the movie to a table maintaining the set of movies for all couples (a map taking tuples of person Ids to sets of movie Ids). The side condition \texttt{s1 \textless s2} ensure we don't visit duplicate or self combinations.
+The question mark notation initializes a map entry with a default value, if the entry did not yet exist.
+In the final statement, a set of Groups is returned containing all couples which performed in 3 or more movies.
+
+
+
+
 \section{Task 3: Computing Average Ratings for Couples}
 
+As can be seen in the previous section, the average rating field of couples is initialized to 0.0. In this task we again transform an IMDB model, this time enriching each couple with its average rating of the movies the couple co-starred in. 
+
+The following function performs this transformation:
 \begin{rascal}
 IMDB addGroupRatings(IMDB m) = m{}[groups=gs]
   \CAT{Keyword}{when} gs :=
     \{{} g{}[avgRating = toReal(mean(ratings))] 
        | g \textless{}- m.groups, ratings := {}[ m.movies{}[x].rating | x \textless{}- g.movies ]\}{};
 \end{rascal}
+
+The groups field of the model \texttt{m} is updated with a new set of groups, as created in the when-clause of the function. 
+The new set of groups is created using a comprehension, updating the \texttt{avgRating} field of each group. 
+The average is computed based on the list of ratings obtained from the movies contained in \texttt{m} that are referenced in the group \texttt{g}. 
 
 \section{Extension Task 1: Top 15 Rankings}
 
