@@ -8,7 +8,13 @@
     research was supported by the Netherlands Organisation for
     Scientific Research (NWO) Jacquard Grant ``Next Generation
     Auditing: Data-Assurance as a service'' (638.001.214).}}
-\author{Pablo Inostroza \and Tijs van der Storm}
+\author{Pablo Inostroza \\
+\institute{CWI, Amsterdam,\\ The Netherlands}
+\email{\href{mailto:pvaldera@cwi.nl}{pvaldera@cwi.nl}}
+\and Tijs van der Storm\\
+\institute{CWI, Amsterdam,\\ The Netherlands}
+\email{\href{mailto:storm@cwi.nl}{storm@cwi.nl}}
+}
 \def\authorrunning{Inostroza and Van der Storm}
 \def\titlerunning{TTC'14: Rascal}
 
@@ -101,7 +107,7 @@ Task 2 consists of enriching IMDB models with ``couples'': pairs of persons that
 \}{}
 \end{rascal}
 
-This function first convert the binary relation \texttt{stars} to a map from movie Id to set of person Ids. The central for loop iterates over all movies and all combinations of two actors and adds the movie to a table maintaining the set of movies for all couples (a map taking tuples of person Ids to sets of movie Ids). The side condition \texttt{s1 \textless s2} ensure we don't visit duplicate or self combinations.
+This function first convert the binary relation \texttt{stars} to a map from movie Id to set of person Ids. The central for loop iterates over all movies and all combinations of two actors and adds the movie to a table maintaining the set of movies for all couples (a map taking tuples of person Ids to sets of movie Ids). The side condition \texttt{s1 \textless{} s2} ensures we don't visit duplicate or self combinations.
 The question mark notation initializes a map entry with a default value, if the entry did not yet exist.
 In the final statement, a set of Groups is returned containing all couples which performed in 3 or more movies.
 
