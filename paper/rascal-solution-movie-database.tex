@@ -89,7 +89,7 @@ IMDB createPositive(\CAT{Keyword}{int} i) = imdb(movies, people, \{\}, stars)
                  \textless{}10*i+4, 10*i+1\textgreater{}, \textless{}10*i+4, 10*i+2\textgreater{}, \textless{}10*i+4, 10*i+3\textgreater{}, \textless{}10*i+4, 10*i+4\textgreater{}\}{};          
 \end{rascal}
 
-The function uses map comprehensions to create the \texttt{movies} and \texttt{people} fields, and a binary relation literal to create the \texttt{stars} relation. It then simply returns a values containing all those fields.
+The function uses map comprehensions to create the \texttt{movies} and \texttt{people} fields, and a binary relation literal to create the \texttt{stars} relation. It then simply returns a value containing all those fields.
 
 
 
@@ -186,7 +186,7 @@ Instead of iterating over pairs of actors explicitly, we now iterate over all co
 \paragraph{Extension Task 3 \& 4}
 
 These are the same as Task 3 and Extension of Task 1 respectively,
-because the code is polymorph over groups. Only in the latter case, the \texttt{getPersons} accessor needs to be extended to accomodate the new \texttt{clique} constructor defined in Extension Task 2. 
+because the code is polymorph over groups. Only in the latter case, the \texttt{getPersons} accessor needs to be extended to accommodate the new \texttt{clique} constructor defined in Extension Task 2. 
 
 \section*{Observations and Concluding Remarks}
 
@@ -195,9 +195,9 @@ Looking back at the effort implementing the TTC'14 tasks in Rascal we can observ
 implementation is around 130 SLOC, including some helper functions,
 but excluding loading the model from XML which is another 38 SLOC. Although Rascal allows side-effects in (local) variables, with the exception of \texttt{makeCouples} and \texttt{makeCliques} none of the function use side-effects of any kind. 
 
-Another observation is that the tasks mostly involved querying the models and aggregrating new result to enrich the model. In such cases, comprehensions are valueable features to create sets, maps, or relations of model elements.  Rascal's built-in features for traversal and powerful pattern matching (e.g., deep pattern matching), were not (even) needed to perform most of the tasks in an adequate way.
+Another observation is that the tasks mostly involved querying the models and aggregating new result to enrich the model. In such cases, comprehensions are valuable features to create sets, maps, or relations of model elements.  Rascal's built-in features for traversal and powerful pattern matching (e.g., deep pattern matching), were not (even) needed to perform most of the tasks in an adequate way.
 
-Related to the nature of the tasks, the fact that cross references had to be represented and managed explicitly posed no problem. In all cases the top-level IMDB model was always available to perform the necessarty reference lookups in the \texttt{movies} and \texttt{persons} tables. 
+Related to the nature of the tasks, the fact that cross references had to be represented and managed explicitly posed no problem. In all cases the top-level IMDB model was always available to perform the necessary reference lookups in the \texttt{movies} and \texttt{persons} tables. 
 It is, however, possible that  transformations that actually change the referential structure of a model require more administration to keep referential integrity in tact.
 
 In terms of performance, we observed that the immutability of models was not an inhibiting factor most of the time, but again, this might be influenced by the nature of tasks. In absence of suitable benchmarks to compare, we can at this point only speculate about whether the Rascal implementation is slow. 
