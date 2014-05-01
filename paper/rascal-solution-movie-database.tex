@@ -120,7 +120,6 @@ To represent rankings, we first introduce the following type alias:
 \begin{rascal}
 \CAT{Keyword}{alias} Ranking = \CAT{Keyword}{lrel}{}[\CAT{Keyword}{set}{}[Person] persons, \CAT{Keyword}{real} avgRating, \CAT{Keyword}{int} numOfMovies]; 
 \end{rascal}
-\vspace*{-.4cm}
 
 A ranking is an ordered relation (\texttt{lrel}) containing the co-stars, the average rating and the number of movies of a couple. 
 To generate rankings in this type, we create a generic function that takes the number of entries (e.g., 15), an IMDB model, and a predicate function to determine ordering of groups. This last argument allows to abstract over what the ranking is based (e.g., average rating or number of movies). 
@@ -145,10 +144,16 @@ The last argument to rank is constructed using a higher-order function, \texttt{
 
 \section{Extension Task 2: Generalizing groups to cliques}
 
+The extension to task 2 consists of generalizing couples to arbitrarily sized cliques of people who co-starred in the same set of movies. A couple is a special case of this situation, where the clique size is 2. 
+To represent arbitrary cliques in the model, we modularly extended the Group data type (see Section~1.1) as follows:
+
 \begin{rascal}
 \CAT{Keyword}{data} Group = clique(\CAT{Keyword}{real} avgRating, \CAT{Keyword}{set}{}[Id] persons, \CAT{Keyword}{set}{}[Id] movies);
 \end{rascal}
 
+This declaration states that the \texttt{clique} constructor is now a valid group value, in addition to \texttt{couple}. 
+
+Enriching an IMDB model with cliques follows the same pattern as enriching a model with couples. In fact the following function follows almost exactly the same structure as the function \texttt{makeCouples} described earlier:
 
 \begin{rascal}
 \CAT{Keyword}{set}{}[Group] makeCliques(IMDB m, \CAT{Keyword}{int} n) \{{}
@@ -158,6 +163,8 @@ The last argument to rank is constructed using a higher-order function, \texttt{
     \CAT{Keyword}{return} \{{}clique(0.0, s, ms) | s \textless{}- cliques, ms := cliques{}[s], size(ms) \textgreater{}= 3 \}{};
 \}{}
 \end{rascal}
+
+Instead of iterating over pairs of actors explicitly, we now iterate over all combinations of size $n$ using the helper function \texttt{combinations}, which generates all combinations of size $n$ taking elements from the set \texttt{costars[movie]}. 
 
 \paragraph{Extension Task 3 \& 4}
 
