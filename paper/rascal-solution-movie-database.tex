@@ -114,22 +114,34 @@ The average is computed based on the list of ratings obtained from the movies co
 
 \section{Extension Task 1: Top 15 Rankings}
 
-\begin{rascal}
-\CAT{Keyword}{alias} Ranking = \CAT{Keyword}{lrel}{}[\CAT{Keyword}{set}{}[Person], \CAT{Keyword}{real}, \CAT{Keyword}{int}]; 
+The object of the extension Task 1 is to compute top 15 rankings based on the average ratings or number of movies a couple participated in. 
+To represent rankings, we first introduce the following type alias:
 
+\begin{rascal}
+\CAT{Keyword}{alias} Ranking = \CAT{Keyword}{lrel}{}[\CAT{Keyword}{set}{}[Person] persons, \CAT{Keyword}{real} avgRating, \CAT{Keyword}{int} numOfMovies]; 
+\end{rascal}
+\vspace*{-.4cm}
+
+A ranking is an ordered relation (\texttt{lrel}) containing the co-stars, the average rating and the number of movies of a couple. 
+To generate rankings in this type, we create a generic function that takes the number of entries (e.g., 15), an IMDB model, and a predicate function to determine ordering of groups. This last argument allows to abstract over what the ranking is based (e.g., average rating or number of movies). 
+
+\begin{rascal}
 Ranking rank(\CAT{Keyword}{int} n, IMDB m, \CAT{Keyword}{bool}(Group, Group) gt) =
     take(n, 
        {}[\textless{}\{{}m.persons{}[x] | x \textless{}- getPersons(g)\}{}, g.avgRating, size(g.movies)\textgreater{} 
             | Group g \textless{}- sort(m.groups, gt)]);
 \end{rascal}    
 
+Again, this function employs a comprehension to create a ranking, iterating over the groups in the IMDB model, sorted according to the predicate \texttt{gt}. For each person in the group (extracted using \texttt{getPersons}), the actual person value is looked up in the model (\texttt{m.person[x]}). The \texttt{take}, \texttt{size} and \texttt{sort} functions are in the standard library of Rascal.  
 
+The actual top 15 rankings are then obtained as follows:
 \begin{rascal}
 Ranking top15avgRating(IMDB m)    = rank(15, m, greaterThan(getRating));    
 Ranking top15commonMovies(IMDB m) = rank(15, m, greaterThan(getNumOfMovies));
 \end{rascal}
 
-greaterThan, getRating, getNumOfMovies.
+The last argument to rank is constructed using a higher-order function, \texttt{greaterThan}, which constructs comparison functions on groups based on the argument getter function (i.e. \texttt{getRating} and \texttt{getNumOfMovies}). So in the first case, rank is called with a comparison predicate based on average ratings of groups, whereas in the second case, groups are ordered based on the number of shared movies in a group.
+
 
 \section{Extension Task 2: Generalizing groups to cliques}
 
@@ -168,6 +180,15 @@ Performance: extracting cliques $> 2$ takes longer than 5 minutes on a
 \texttt{combinations} is slow, even though we use a dynamic
 programming algorithm; it is possible that immutability works against
 us here.
+
+
+Lookup via maps: need access to the whole model.
+Comprehensions
+Higher-order functions
+
+Rascal's built-in features for traversal and powerful pattern matchin (e.g., deep pattern matching), were not (even) needed to perform the tasks in a nice an declarative way. 
+
+Transformations simple: no change of referential structure. 
 
 \section{Bibliography}
 
