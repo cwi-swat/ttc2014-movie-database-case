@@ -5,7 +5,6 @@ import IMDB;
 import Set;
 import List;
 import util::Math;
-import Utils;
 
 alias Ranking = lrel[set[Person], real, int]; 
 
